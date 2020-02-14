@@ -142,10 +142,13 @@ for epoch in range(1, num_epochs + 1):
 
 **答：**``dense.weight.grad()``
 
-**15. softmax运算符**
+**15. Softmax函数与交叉熵**
 
 **答：** 
-![](http://latex.codecogs.com/gif.latex?y_%7Bi%7D%3D%5Cfrac%7Be%5E%7Ba_%7Bi%7D%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7D%20e%5E%7Ba_%7Bk%7D%7D%7D%20%5Cquad%20%5Cforall%20i%20%5Cin%201%20%5Cldots%20C)
+在进入softmax函数之前，已经有模型输出$C$值，其中$C$是要预测的类别数，模型可以是全连接网络的输出$a$，其输出个数为$C$，即输出为$a_1, a_2, ..., a_C$。
+
+所以对每个样本，它属于类别$i$的概率为：
+![2](http://latex.codecogs.com/gif.latex?y_%7Bi%7D%3D%5Cfrac%7Be%5E%7Ba_%7Bi%7D%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7D%20e%5E%7Ba_%7Bk%7D%7D%7D%20%5Cquad%20%5Cforall%20i%20%5Cin%201%20%5Cldots%20C)
 
 **16. 为什么交叉熵损失可以提高具有sigmoid和softmax输出的模型的性能，而使用均方误差损失则会出现很多问题？**
 
