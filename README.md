@@ -157,7 +157,7 @@ for epoch in range(1, num_epochs + 1):
 
 ![3](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial%7By_%7Bi%7D%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D)
 
-第$i$项的输出对第$j$项输入的偏导。
+第 $i$ 项的输出对第 $j$ 项输入的偏导。
 
 代入softmax函数表达式，可以得到:
 
@@ -253,6 +253,47 @@ array([ 0.,  0.,  0.,  0.,  1.])
 由于连乘可能导致最终结果接近0的问题，一般对似然函数取对数的负数，变成最小化对数似然函数。
 
 ![](https://www.zhihu.com/equation?tex=-log%5C+p%28t%7Cx%29+%3D+-log+%5Cprod_%7Bi%3D1%7D%5E%7BC%7Dy_i%5E%7Bt_i%7D+%3D+-%5Csum_%7Bi+%3D+i%7D%5E%7BC%7D+t_%7Bi%7D+log%28y_%7Bi%7D%29)
+
+
+**交叉熵**
+说交叉熵之前先介绍相对熵，相对熵又称为KL散度（Kullback-Leibler Divergence），用来衡量两个分布之间的距离，记为![](https://www.zhihu.com/equation?tex=D_%7BKL%7D%28p%7C%7Cq%29)
+
+![](https://www.zhihu.com/equation?tex=%5Cbegin%7Bsplit%7DD_%7BKL%7D%28p%7C%7Cq%29+%26%3D+%5Csum_%7Bx+%5Cin+X%7D+p%28x%29+log+%5Cfrac%7Bp%28x%29%7D%7Bq%28x%29%7D+%5C%5C%26+%3D%5Csum_%7Bx+%5Cin+X%7Dp%28x%29log+%5C+p%28x%29+-+%5Csum_%7Bx+%5Cin+X%7Dp%28x%29log+%5C+q%28x%29+%5C%5C%26+%3D-H%28p%29+-+%5Csum_%7Bx+%5Cin+X%7Dp%28x%29log%5C+q%28x%29%5Cend%7Bsplit%7D)
+
+这里![公式](https://www.zhihu.com/equation?tex=H%28p%29)是![公式](https://www.zhihu.com/equation?tex=p)的熵。
+
+假设有两个分布![公式](https://www.zhihu.com/equation?tex=p)和![公式](https://www.zhihu.com/equation?tex=q)，它们在给定样本集上的交叉熵定义为：
+
+![](https://www.zhihu.com/equation?tex=CE%28p%2C+q%29+%3D+-%5Csum_%7Bx+%5Cin+X%7Dp%28x%29log%5C+q%28x%29+%3D+H%28p%29+%2B+D_%7BKL%7D%28p%7C%7Cq%29)
+
+回到我们多分类的问题上，真实的类标签可以看作是分布，对某个样本属于哪个类别可以用One-hot的编码方式，是一个维度为![](https://www.zhihu.com/equation?tex=C)的向量，比如在5个类别的分类中，[0, 1, 0, 0, 0]表示该样本属于第二个类，其概率值为1。我们把真实的类标签分布记为![](https://www.zhihu.com/equation?tex=p)，该分布中![](https://www.zhihu.com/equation?tex=t_i+%3D+1)，当![](https://www.zhihu.com/equation?tex=i)属于它的真实类别![](https://www.zhihu.com/equation?tex=c)。同时，分类模型经过softmax函数之后，也是一个概率分布，因为![](https://www.zhihu.com/equation?tex=%5Csum_%7Bi+%3D+1%7D%5E%7BC%7D%7By_i%7D+%3D+1)，所以我们把模型的输出的分布记为![](https://www.zhihu.com/equation?tex=q)，它也是一个维度为![](https://www.zhihu.com/equation?tex=C)的向量，如[0.1, 0.8, 0.05, 0.05, 0]。对一个样本来说，真实类标签分布与模型预测的类标签分布可以用交叉熵来表示：
+
+![](https://www.zhihu.com/equation?tex=l_%7BCE%7D+%3D+-%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_i+log%28y_i%29)
+
+可以看出，该等式于上面对数似然函数的形式一样！
+
+最终，对所有的样本，我们有以下loss function：
+
+![](https://www.zhihu.com/equation?tex=L+%3D+-%5Csum_%7Bk+%3D+1%7D%5E%7Bn%7D%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_%7Bki%7D+log%28y_%7Bki%7D%29)
+
+其中![公式](https://www.zhihu.com/equation?tex=t_%7Bki%7D)是样本![公式](https://www.zhihu.com/equation?tex=k)属于类别![公式](https://www.zhihu.com/equation?tex=i)的概率，![公式](https://www.zhihu.com/equation?tex=y_%7Bki%7D)是模型对样本![公式](https://www.zhihu.com/equation?tex=k)预测为属于类别![公式](https://www.zhihu.com/equation?tex=i)的概率。
+
+**求导**
+
+对单个样本来说，loss function![公式](https://www.zhihu.com/equation?tex=l_%7BCE%7D)对输入![公式](https://www.zhihu.com/equation?tex=a_j)的导数为：
+
+![](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial+l_%7BCE%7D%7D%7B%5Cpartial+a_j%7D+%3D+-%5Csum_%7Bi+%3D+1%7D%5E%7BC%7D%5Cfrac+%7B%5Cpartial+t_i+log%28y_i%29%7D%7B%5Cpartial%7Ba_j%7D%7D+%3D+-%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_i+%5Cfrac+%7B%5Cpartial+log%28y_i%29%7D%7B%5Cpartial%7Ba_j%7D%7D+%3D+-%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_i+%5Cfrac%7B1%7D%7By_i%7D%5Cfrac%7B%5Cpartial+y_i%7D%7B%5Cpartial+a_j%7D)
+
+
+上面对![公式](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial%7By_%7Bi%7D%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D)求导结果已经算出：
+
+当![公式](https://www.zhihu.com/equation?tex=i+%3D+j)时：![公式](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial%7By_%7Bi%7D%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D+%3D+y_i%281+-+y_j%29)
+
+当![公式](https://www.zhihu.com/equation?tex=i+%5Cne+j)时：![公式](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial%7By_%7Bi%7D%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D+%3D+-y_iy_j)
+
+所以，将求导结果代入上式：
+
+![](https://www.zhihu.com/equation?tex=%5Cbegin%7Bsplit%7D-%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_i+%5Cfrac%7B1%7D%7By_i%7D%5Cfrac%7B%5Cpartial+y_i%7D%7B%5Cpartial+a_j%7D%26%3D+-%5Cfrac%7Bt_i%7D%7By_i%7D%5Cfrac%7B%5Cpartial+y_i%7D%7B%5Cpartial+a_i%7D+-+%5Csum_%7Bi+%5Cne+j%7D%5E%7BC%7D+%5Cfrac%7Bt_i%7D%7By_i%7D%5Cfrac%7B%5Cpartial+y_i%7D%7B%5Cpartial+a_j%7D+%5C%5C%26+%3D+-%5Cfrac%7Bt_j%7D%7By_i%7Dy_i%281+-+y_j%29+-+%5Csum_%7Bi+%5Cne+j%7D%5E%7BC%7D+%5Cfrac%7Bt_i%7D%7By_i%7D%28-y_iy_j%29+%5C%5C%26+%3D+-t_j+%2B+t_jy_j+%2B+%5Csum_%7Bi+%5Cne+j%7D%5E%7BC%7Dt_iy_j+%3D+-t_j+%2B+%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_iy_j+%5C%5C%26+%3D+-t_j+%2B+y_j%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_i+%3D+y_j+-+t_j%5Cend%7Bsplit%7D)
 
 **18. 为什么交叉熵损失可以提高具有sigmoid和softmax输出的模型的性能，而使用均方误差损失则会出现很多问题？**
 
