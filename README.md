@@ -33,3 +33,20 @@
 **5. batch_size, epochs, iteration三个概念区别**
 
 **答：**
+（1）batchsize：批大小。在深度学习中，一般采用SGD训练，即每次训练在训练集中取batchsize个样本训练；
+
+（2）iteration：1个iteration等于使用batchsize个样本训练一次；
+
+（3）epoch：1个epoch等于使用训练集中的全部样本训练一次，即所有的训练样本完成一次Forword运算以及一次BP运算；
+
+一次epoch 总处理数量 = iterations次数 * batch_size大小
+简单一句话说就是，我们有2000个数据，分成4个batch，那么batch size就是500。运行所有的数据进行训练，完成1个epoch，需要进行4次iterations。
+
+**6. 权重和偏置的实际意义**
+
+**答：**
+![2](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/2.png)
+
+**7. 权重和偏置的实际意义**
+
+**答：**
