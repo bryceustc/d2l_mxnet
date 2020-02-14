@@ -84,32 +84,32 @@ print(next(f))  # 1
 
 **答：**
 
-1、数据集处理 
+1). 数据集处理 
 
-2、读取数据
+2). 读取数据
 ```python
 batch_size = 10
 dataset = gdata.ArrayDataset(features, labels)
 # 随机读取⼩批量
 data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
 ```
-3、定义模型
+3). 定义模型
 ```python
 from mxnet.gluon import nn
 net = nn.Sequential()
 net.add(nn.Dense(1)) #该层输出个数为1
 ``` 
-4、初始化模型参数
+4). 初始化模型参数
 ```python
 from mxnet import init
 net.initialize(init.Normal(sigma=0.01))
 ``` 
-5、定义损失函数 
+5). 定义损失函数 
 ```python
 from mxnet.gluon import loss as gloss
 loss = gloss.L2Loss() # 平⽅损失⼜称L2范数损失
 ``` 
-6、定义优化算法 
+6). 定义优化算法 
 ```python
 #导⼊Gluon后，我们创建⼀个Trainer实例，并
 #指定学习率为0.03的小批量随机梯度下降（sgd）为优化算法。该优化算法将⽤来迭代net实例所
@@ -117,7 +117,7 @@ loss = gloss.L2Loss() # 平⽅损失⼜称L2范数损失
 from mxnet import gluon
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 ```
-7、训练模型 
+7). 训练模型 
 ```python
 # 在使⽤Gluon训练模型时，我们通过调⽤Trainer实例的step函数来迭代模型参数。上⼀节中我
 # 们提到，由于变量l是⻓度为batch_size的⼀维NDArray，执⾏l.backward()等价于执⾏l.
@@ -149,12 +149,63 @@ for epoch in range(1, num_epochs + 1):
 在进入softmax函数之前，已经有模型输出$C$值，其中$C$是要预测的类别数，模型可以是全连接网络的输出$a$，其输出个数为$C$，即输出为$a_1, a_2, ..., a_C$。
 
 所以对每个样本，它属于类别$i$的概率为：
-![2](http://latex.codecogs.com/gif.latex?y_%7Bi%7D%3D%5Cfrac%7Be%5E%7Ba_%7Bi%7D%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7D%20e%5E%7Ba_%7Bk%7D%7D%7D%20%5Cquad%20%5Cforall%20i%20%5Cin%201%20%5Cldots%20C)
+![2](https://www.zhihu.com/equation?tex=y_%7Bi%7D+%3D+%5Cfrac%7Be%5E%7Ba_i%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%7D%7D+%5C+%5C+%5C+%5Cforall+i+%5Cin+1...C)
 
-**16. 为什么交叉熵损失可以提高具有sigmoid和softmax输出的模型的性能，而使用均方误差损失则会出现很多问题？**
+通过上式可以保证${\sum_{i=1}^{C} y_{i}}=1$，即属于各个类别的概率和为1。
+
+对softmax函数进行求导，即求：
+
+![3](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial%7By_%7Bi%7D%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D)
+
+第$i$项的输出对第$j$项输入的偏导。
+
+代入softmax函数表达式，可以得到:
+
+![4](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial%7By_%7Bi%7D%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D+%3D+%5Cfrac%7B%5Cpartial%7B+%5Cfrac%7Be%5E%7Ba_i%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%7D%7D+%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D)
+
+用我们高中就知道的求导规则：对于
+
+![5](https://www.zhihu.com/equation?tex=f%28x%29+%3D+%5Cfrac%7Bg%28x%29%7D%7Bh%28x%29%7D)
+
+它的导数为
+
+![6](https://www.zhihu.com/equation?tex=f%27%28x%29+%3D+%5Cfrac%7Bg%27%28x%29h%28x%29+-+g%28x%29h%27%28x%29%7D%7B%5Bh%28x%29%5D%5E2%7D)
+
+所以在我们这个例子中，
+
+![7](https://www.zhihu.com/equation?tex=g%28x%29+%3D+e%5E%7Ba_i%7D+%5C%5C+h%28x%29+%3D+%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%7D)
+
+上面两个式子只是代表直接进行替换，而非真的等式。
+
+![8](https://www.zhihu.com/equation?tex=e%5E%7Ba_i%7D)即($g(x)$)对$a_j$进行求导，要分情况讨论:
+
+1). 如果![9](https://www.zhihu.com/equation?tex=i+%3D+j)，则求导结果为![8](https://www.zhihu.com/equation?tex=e%5E%7Ba_i%7D)
+
+2). 如果![10](https://www.zhihu.com/equation?tex=i+%5Cne+j)，则求导结果为0
+
+再来看![11](https://www.zhihu.com/equation?tex=%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%7D)对$a_j$求导，结果为![公式](https://www.zhihu.com/equation?tex=e%5E%7Ba_j%7D)。
+
+所以，当![9](https://www.zhihu.com/equation?tex=i+%3D+j)时：
+
+![](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial%7By_%7Bi%7D%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D+%3D+%5Cfrac%7B%5Cpartial%7B+%5Cfrac%7Be%5E%7Ba_i%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%7D%7D+%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D%3D+%5Cfrac%7B+e%5E%7Ba_i%7D%5CSigma+-+e%5E%7Ba_i%7De%5E%7Ba_j%7D%7D%7B%5CSigma%5E2%7D%3D%5Cfrac%7Be%5E%7Ba_i%7D%7D%7B%5CSigma%7D%5Cfrac%7B%5CSigma+-+e%5E%7Ba_j%7D%7D%7B%5CSigma%7D%3Dy_i%281+-+y_j%29)
+
+当![10](https://www.zhihu.com/equation?tex=i+%5Cne+j)时：
+
+![](https://www.zhihu.com/equation?tex=%5Cfrac%7B%5Cpartial%7By_%7Bi%7D%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D+%3D+%5Cfrac%7B%5Cpartial%7B+%5Cfrac%7Be%5E%7Ba_i%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%7D%7D+%7D%7D%7B%5Cpartial%7Ba_%7Bj%7D%7D%7D%3D+%5Cfrac%7B+0+-+e%5E%7Ba_i%7De%5E%7Ba_j%7D%7D%7B%5CSigma%5E2%7D%3D-%5Cfrac%7Be%5E%7Ba_i%7D%7D%7B%5CSigma%7D%5Cfrac%7Be%5E%7Ba_j%7D%7D%7B%5CSigma%7D%3D-y_iy_j)
+
+其中，为了方便，令![](https://www.zhihu.com/equation?tex=%5CSigma+%3D+%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%7D)
+
+
+**16. softmax的计算与数值稳定性**
 
 **答：**
 
-**17. 了解最大似然估计。它与最小化交叉熵损失函数有哪些异曲同工之妙**
+**18. 为什么交叉熵损失可以提高具有sigmoid和softmax输出的模型的性能，而使用均方误差损失则会出现很多问题？**
 
 **答：**
+
+**19. 了解最大似然估计。它与最小化交叉熵损失函数有哪些异曲同工之妙**
+
+**答：**
+
+***
