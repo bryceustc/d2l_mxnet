@@ -30,3 +30,22 @@ X.norm().asscalar() # 通过asscalar函数将结果变换为Python中的标量
 P = np.ones((2, 3))
 D = nd.array(P)
 D.asnumpy()
+
+
+## 广播机制
+X = nd.arange(3).reshape((3,1))
+
+# [[0.]
+#  [1.]
+#  [2.]]
+# <NDArray 3x1 @cpu(0)>
+
+Y = nd.arange(2).reshape((1,2))
+# [[0. 1.]]
+# <NDArray 1x2 @cpu(0)>)
+
+X+Y 
+#[[0. 1.]
+#[1. 2.]
+#[2. 3.]]
+#<NDArray 3x2 @cpu(0)>
