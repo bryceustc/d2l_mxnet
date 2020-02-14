@@ -256,6 +256,7 @@ array([ 0.,  0.,  0.,  0.,  1.])
 
 
 **交叉熵**
+
 说交叉熵之前先介绍相对熵，相对熵又称为KL散度（Kullback-Leibler Divergence），用来衡量两个分布之间的距离，记为![](https://www.zhihu.com/equation?tex=D_%7BKL%7D%28p%7C%7Cq%29)
 
 ![](https://www.zhihu.com/equation?tex=%5Cbegin%7Bsplit%7DD_%7BKL%7D%28p%7C%7Cq%29+%26%3D+%5Csum_%7Bx+%5Cin+X%7D+p%28x%29+log+%5Cfrac%7Bp%28x%29%7D%7Bq%28x%29%7D+%5C%5C%26+%3D%5Csum_%7Bx+%5Cin+X%7Dp%28x%29log+%5C+p%28x%29+-+%5Csum_%7Bx+%5Cin+X%7Dp%28x%29log+%5C+q%28x%29+%5C%5C%26+%3D-H%28p%29+-+%5Csum_%7Bx+%5Cin+X%7Dp%28x%29log%5C+q%28x%29%5Cend%7Bsplit%7D)
@@ -295,12 +296,35 @@ array([ 0.,  0.,  0.,  0.,  1.])
 
 ![](https://www.zhihu.com/equation?tex=%5Cbegin%7Bsplit%7D-%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_i+%5Cfrac%7B1%7D%7By_i%7D%5Cfrac%7B%5Cpartial+y_i%7D%7B%5Cpartial+a_j%7D%26%3D+-%5Cfrac%7Bt_i%7D%7By_i%7D%5Cfrac%7B%5Cpartial+y_i%7D%7B%5Cpartial+a_i%7D+-+%5Csum_%7Bi+%5Cne+j%7D%5E%7BC%7D+%5Cfrac%7Bt_i%7D%7By_i%7D%5Cfrac%7B%5Cpartial+y_i%7D%7B%5Cpartial+a_j%7D+%5C%5C%26+%3D+-%5Cfrac%7Bt_j%7D%7By_i%7Dy_i%281+-+y_j%29+-+%5Csum_%7Bi+%5Cne+j%7D%5E%7BC%7D+%5Cfrac%7Bt_i%7D%7By_i%7D%28-y_iy_j%29+%5C%5C%26+%3D+-t_j+%2B+t_jy_j+%2B+%5Csum_%7Bi+%5Cne+j%7D%5E%7BC%7Dt_iy_j+%3D+-t_j+%2B+%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_iy_j+%5C%5C%26+%3D+-t_j+%2B+y_j%5Csum_%7Bi+%3D+1%7D%5E%7BC%7Dt_i+%3D+y_j+-+t_j%5Cend%7Bsplit%7D)
 
-**18. 为什么交叉熵损失可以提高具有sigmoid和softmax输出的模型的性能，而使用均方误差损失则会出现很多问题？**
+```python
+y_hat = nd.array([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
+y = nd.array([0, 2], dtype='int32')
+nd.pick(y_hat, y)
+# pick函数
+#[0.1 0.5]
+#<NDArray 2 @cpu(0)>
+
+def cross_entropy(y_hat, y):
+    return -nd.pick(y_hat, y).log()
+```
+
+**18. 直接按照softmax运算的数学定义来实现softmax函数。这可能会造成什么问题？（提⽰：试⼀试计算exp(50)的⼤小。）**
+
+**答：**会溢出，求exp(x)会溢出了：
+
+一种简单有效避免该问题的方法就是让exp(x)中的x值不要那么大或那么小，在softmax函数的分式上下分别乘以一个非零常数：
+**19. cross_entropy函数是按照“softmax回归”⼀节中的交叉熵损失函数的数学定义实现的。这样的实现⽅式可能有什么问题？（提⽰：思考⼀下对数函数的定义域。）**
+
+**答：** 主要是因为log()函数中出现了零值，因此在计算交叉熵时，在log()中加一极小值，如log(x+e-5)
+
+**20. 了解最大似然估计。它与最小化交叉熵损失函数有哪些异曲同工之妙**
 
 **答：**
-
-**19. 了解最大似然估计。它与最小化交叉熵损失函数有哪些异曲同工之妙**
-
-**答：**
-
+伯努利分布下的最大似然估计推导出交叉熵损失函数，高斯分布下的最大似然估计推导出均方误差损失函数.[参考](https://blog.csdn.net/zgcr654321/article/details/85204049)
 ***
+
+**21. 为什么交叉熵损失可以提高具有sigmoid和softmax输出的模型的性能，而使用均方误差损失则会出现很多问题？**
+
+**答：**交叉熵作为损失函数还有一个好处是使用sigmoid函数在梯度下降时能避免均方误差损失函数学习速率降低的问题，因为学习速率可以被输出的误差所控制。
+
+
