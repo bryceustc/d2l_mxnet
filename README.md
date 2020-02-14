@@ -199,6 +199,60 @@ for epoch in range(1, num_epochs + 1):
 **16. softmax的计算与数值稳定性**
 
 **答：**
+在Python中，softmax函数为：
+```python
+def softmax(X):
+    X_exp = X.exp()
+    partition = X_exp.sum()
+    return X_exp / partition
+```
+传入[1, 2, 3, 4, 5]的向量
+```python
+>>> softmax([1, 2, 3, 4, 5])
+array([ 0.01165623,  0.03168492,  0.08612854,  0.23412166,  0.63640865])
+```
+但如果输入值较大时：
+```python
+>>> softmax([1000, 2000, 3000, 4000, 5000])
+array([ nan,  nan,  nan,  nan,  nan])
+```
+这是因为在求exp(x)时候溢出了：
+
+一种简单有效避免该问题的方法就是让exp(x)中的x值不要那么大或那么小，在softmax函数的分式上下分别乘以一个非零常数：
+
+![](https://www.zhihu.com/equation?tex=y_%7Bi%7D+%3D+%5Cfrac%7Be%5E%7Ba_i%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%7D%7D%3D+%5Cfrac%7BEe%5E%7Ba_i%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7DEe%5E%7Ba_k%7D%7D%3D+%5Cfrac%7Be%5E%7Ba_i%2Blog%28E%29%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%2Blog%28E%29%7D%7D%3D+%5Cfrac%7Be%5E%7Ba_i%2BF%7D%7D%7B%5Csum_%7Bk%3D1%7D%5E%7BC%7De%5E%7Ba_k%2BF%7D%7D)
+
+这里![](https://www.zhihu.com/equation?tex=log%28E%29)是个常数，所以可以令它等于![](https://www.zhihu.com/equation?tex=F)。加上常数之后，等式与原来还是相等的，所以我们可以考虑怎么选取常数![](https://www.zhihu.com/equation?tex=F)。我们的想法是让所有的输入在0附近，这样![](https://www.zhihu.com/equation?tex=e%5E%7Ba_i%7D)的值不会太大，所以可以让的![](https://www.zhihu.com/equation?tex=F)值为：
+
+![](https://www.zhihu.com/equation?tex=F+%3D+-max%28a_1%2C+a_2%2C+...%2C+a_C%29)
+
+这样子将所有的输入平移到0附近（当然需要假设所有输入之间的数值上较为接近），同时，除了最大值，其他输入值都被平移成负数，为底的指数函数，越小越接近0，这种方式比得到nan的结果更好。
+```python
+def softmax(x):
+    shift_x = x - np.max(x)
+    exp_x = np.exp(shift_x)
+    return exp_x / np.sum(exp_x)
+
+>>> softmax([1000, 2000, 3000, 4000, 5000])
+array([ 0.,  0.,  0.,  0.,  1.])
+```
+当然这种做法也不是最完美的，因为softmax函数不可能产生0值，但这总比出现nan的结果好，并且真实的结果也是非常接近0的。加了一个常数的softmax对原来的结果影响很小。
+
+**17. 交叉熵损失函数**
+
+**答：**机器学习里面，对模型的训练都是对Loss function进行优化，在分类问题中，[我们一般使用最大似然估计（Maximum likelihood estimation）](https://zh.wikipedia.org/wiki/%E6%9C%80%E5%A4%A7%E4%BC%BC%E7%84%B6%E4%BC%B0%E8%AE%A1)来构造损失函数。对于输入的![](https://www.zhihu.com/equation?tex=x)，其对应的类标签为![](https://www.zhihu.com/equation?tex=t)，我们的目标是找到这样的![](https://www.zhihu.com/equation?tex=%5Ctheta)使得![](https://www.zhihu.com/equation?tex=p%28t%7Cx%29)最大。在二分类的问题中，我们有：
+
+![](https://www.zhihu.com/equation?tex=p%28t%7Cx%29+%3D+%28y%29%5Et%281-y%29%5E%7B1-t%7D)
+
+其中，![公式](https://www.zhihu.com/equation?tex=y+%3D+f%28x%29)是模型预测的概率值，![公式](https://www.zhihu.com/equation?tex=t)是样本对应的类标签。
+
+将问题泛化为更一般的情况，多分类问题：
+
+![](https://www.zhihu.com/equation?tex=p%28t%7Cx%29+%3D+%5Cprod_%7Bi%3D1%7D%5E%7BC%7DP%28t_i%7Cx%29%5E%7Bt_i%7D+%3D+%5Cprod_%7Bi%3D1%7D%5E%7BC%7Dy_i%5E%7Bt_i%7D)
+
+由于连乘可能导致最终结果接近0的问题，一般对似然函数取对数的负数，变成最小化对数似然函数。
+
+![](https://www.zhihu.com/equation?tex=-log%5C+p%28t%7Cx%29+%3D+-log+%5Cprod_%7Bi%3D1%7D%5E%7BC%7Dy_i%5E%7Bt_i%7D+%3D+-%5Csum_%7Bi+%3D+i%7D%5E%7BC%7D+t_%7Bi%7D+log%28y_%7Bi%7D%29)
 
 **18. 为什么交叉熵损失可以提高具有sigmoid和softmax输出的模型的性能，而使用均方误差损失则会出现很多问题？**
 
