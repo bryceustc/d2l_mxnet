@@ -359,4 +359,35 @@ def cross_entropy(y_hat, y):
 
 **24. 参数初始化的选取，权重初始化选取0左右的随机数，不能取0，偏置可以取0**
 
-**答：**https://zhuanlan.zhihu.com/p/21560667?refer=intelligentunit
+**答：**
+```python
+W1 = nd.random.normal(scale=0.01,shape=(num_inputs,num_hiddens))
+b1 = nd.zeros(num_hiddens)
+```
+通过运行help(nd.random_normal)了解参数的意义可知，scale实际上对应的产生随机数的标准差，即std，我记得NG讲过W的初始化的mean分布在0，std=1/sqrt(n)，n为units的个数，所以本题的W的初始权重在1/16左右是没有问题，因此修改weight_scale=0.1/0.01都是可以运行，当为1时，太大了，导致梯度太大，SGD无法运行。
+
+[参数初始化](https://zhuanlan.zhihu.com/p/21560667?refer=intelligentunit)
+
+**25. 改变超参数num_hiddens的值，看看对实验结果有什么影响**
+
+**答：**
+
+epoch 设为100，num_hiddens 由256改成32 ,loss 会下降比较慢，而 train accuracy 会上升比较慢
+
+![](https://discuss.gluon.ai/uploads/default/original/2X/d/dc6c93f9b23f98daf3240dce771eaa451ec9047c.jpeg)
+
+**26. 加⼊⼀个新的隐藏层，看看对实验结果有什么影响**
+
+**答：**
+
+epoch 设为100；增加 一层 num_hiddens =256/128的隐藏层：发现增加一层，迭代100次之后，loss更容易 比不增加一层的loss更容易收敛，train accuracy增加得更多 ；另外 num_hiddens 为256/128 影响并不大。
+
+![](https://discuss.gluon.ai/uploads/default/original/2X/7/72b94d0aded71e9f9408618a2c248da5c04756f1.jpeg)
+增大hidden输出，增加隐藏层，都增加了模型容量，也能观察到训练误差和测试误差相对都有降低。
+
+1、隐藏层的话，设置的每一层的units数量应该逐层递减，比如hidden1 =256,后面可以一次为 128 64 32. 或者直接
+hidden 2=64(32)。 这样
+
+2、隐藏层过多的话训练会比较慢，因此epoch次数应该多一点
+
+3、隐藏层太多，导致梯度爆炸或者梯度消失。从而产生nan
