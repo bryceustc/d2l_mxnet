@@ -374,7 +374,7 @@ b1 = nd.zeros(num_hiddens)
 
 epoch 设为100，num_hiddens 由256改成32 ,loss 会下降比较慢，而 train accuracy 会上升比较慢
 
-![25](https://discuss.gluon.ai/uploads/default/original/2X/d/dc6c93f9b23f98daf3240dce771eaa451ec9047c.jpeg)
+![25](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/25.jpeg)
 
 **26. 加⼊⼀个新的隐藏层，看看对实验结果有什么影响**
 
@@ -382,7 +382,7 @@ epoch 设为100，num_hiddens 由256改成32 ,loss 会下降比较慢，而 trai
 
 epoch 设为100；增加 一层 num_hiddens =256/128的隐藏层：发现增加一层，迭代100次之后，loss更容易 比不增加一层的loss更容易收敛，train accuracy增加得更多 ；另外 num_hiddens 为256/128 影响并不大。
 
-![26](https://discuss.gluon.ai/uploads/default/original/2X/7/72b94d0aded71e9f9408618a2c248da5c04756f1.jpeg)
+![26](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/26.jpeg)
 
 增大hidden输出，增加隐藏层，都增加了模型容量，也能观察到训练误差和测试误差相对都有降低。
 
