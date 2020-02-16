@@ -356,3 +356,7 @@ def cross_entropy(y_hat, y):
 **23. 应⽤链式法则，推导出sigmoid函数和tanh函数的导数的数学表达式**
 
 **答：**
+
+**24. 参数初始化的选取，权重初始化选取0左右的随机数，不能取0，偏置可以取0**
+
+**答：**https://zhuanlan.zhihu.com/p/21560667?refer=intelligentunit
