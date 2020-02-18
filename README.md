@@ -425,10 +425,26 @@ hidden 2=64(32)。 这样
     -  正则化
 
 
-**31. 先验概率、后验概率**
+**31. 贝叶斯估计、最大似然估计(MLE)、最大后验概率估计(MAP)概念理解**
 
 **答：**
-概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。
+概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。频率学派的代表是最大似然估计；贝叶斯学派的代表是最大后验概率估计。
+
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_1.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_2.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_3.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_4.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_5.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_6.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_7.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_8.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_9.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_10.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_11.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_12.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_13.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_14.jpg)
+![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_15.jpg)
 
 **32. 如果你了解⻉叶斯统计，你觉得权重衰减对应⻉叶斯统计⾥的哪个重要概念？**
 
