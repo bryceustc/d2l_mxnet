@@ -447,6 +447,7 @@ hidden 2=64(32)。 这样
 ![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_15.jpg)
 
 [参考](https://www.jianshu.com/p/9c153d82ba2d)
+
 **32. 如果你了解⻉叶斯统计，你觉得权重衰减对应⻉叶斯统计⾥的哪个重要概念？**
 
 **答：**
@@ -493,3 +494,22 @@ dropout也可以被用作一种添加噪声的方法，直接对input进行操�
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_1.jpg)
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_2.jpg)
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_3.jpg)
+
+**38. 反向传播算法（过程及公式推导）**
+
+**答：**
+
+[反向传播算法（过程及公式推导）](https://blog.csdn.net/u014313009/article/details/51039334)
+
+**39 有⼈说随机初始化模型参数是为了“打破对称性”。这⾥的“对称”应如何理解？**
+
+**答：**
+
+对称性指的是在进行梯度下降更新时更新变化量不能全部每次都相同，达不到训练模型的效果。
+
+**40.是否可以将线性回归或softmax回归中所有的权重参数都初始化为相同值？**
+
+**答：**
+回到之前的例子里面尝试了一下，线性回归设相同值对结果影响不大。softmax设相同值，分类准确率一直是0.1
+
+可以这样理解，权重相同，隐藏层的神经元相当于单个神经元，此时神经网络相当于线性分类器。所以线性回归可以设相同值，而softmax是非线性分类器，不能设相同的值。
