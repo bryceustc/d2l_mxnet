@@ -446,11 +446,50 @@ hidden 2=64(32)。 这样
 ![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_14.jpg)
 ![1](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/31_15.jpg)
 
+[参考](https://www.jianshu.com/p/9c153d82ba2d)
 **32. 如果你了解⻉叶斯统计，你觉得权重衰减对应⻉叶斯统计⾥的哪个重要概念？**
 
 **答：**
+
 **先验（prior）**
 
 从贝叶斯的角度来看，正则化等价于对模型参数引入 先验分布 。L2正则化对应于参数是服从高斯分布的先验假设,L1对应拉普拉斯分布。
 
 ![32](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/32.png)
+
+**33. drop out防止过拟合的原因**
+
+**答：**
+防止参数过分依赖训练数据，增加参数对数据集的泛化能力，因为在实际训练的时候，每个参数都有可能被随机的Drop掉，所以参数不会过分的依赖某一个特征的数据，而且不同参数之间的相互关联性也大大减弱，这些操作都可以增加泛化能力。
+
+CNN训练过程中使用dropout是在每次训练过程中随机将部分神经元的权重置为0，即让一些神经元失效，这样可以缩减参数量，避免过拟合，关于dropout为什么有效，有两种观点：1）每次迭代随机使部分神经元失效使得模型的多样性增强，获得了类似多个模型ensemble的效果，避免过拟合  2）dropout其实也是一个data augmentation的过程，它导致了稀疏性，使得局部数据簇差异性更加明显，这也是其能够防止过拟合的原因。
+dropout率的选择： 经过交叉验证，隐含节点dropout率等于0.5的时候效果最好，原因是0.5的时候dropout随机生成的网络结构最多。
+dropout也可以被用作一种添加噪声的方法，直接对input进行操作。输入层设为更接近1的数。使得输入变化不会太大（0.8）
+
+[参考](https://zhuanlan.zhihu.com/p/21560667?refer=intelligentunit)
+
+**34.如果把本节中的两个丢弃概率超参数对调，会有什么结果？**
+
+**答：**
+效果变差一些，drop_pro1 = 0.2, drop_pro2 = 0.5，第一层是与原始数据相连，drop概率变大，所丢失信息变多，所以效果差一点。
+
+**35.增⼤迭代周期数，⽐较使⽤丢弃法与不使⽤丢弃法的结果**
+
+**答：**
+不使用dropout时，训练集的准确度略有上升，而测试集的准确度略有下降。
+
+**36. 以本节中的模型为例，⽐较使⽤丢弃法与权重衰减的效果。如果同时使⽤丢弃法和权重衰减，效果会如何？**
+
+**答：**
+使用如下代码做了尝试，发现同时使用丢弃法和权重衰减，效果很差，分类结果近似于在10个类别中随机猜测一种，测试精度约等于1/10。
+被丢弃的权重对Loss的导数是0，参数更新之后，这一项权重会变成接近0，退回到类似于刚初始化时的权重。
+
+如果非得同时使用丢弃法和权重衰减，那就需要修改权重衰减的范数惩罚项，计算范数惩罚项时只考虑没有被drop的那些权重。
+
+**37. L1、L2、Batch Normalization、Dropout为什么能够防止过拟合呢？**
+
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_1.jpg)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_2.jpg)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_3.jpg)
