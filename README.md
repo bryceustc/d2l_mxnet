@@ -494,7 +494,7 @@ dropout也可以被用作一种添加噪声的方法，直接对input进行操�
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_1.jpg)
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_2.jpg)
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/37_3.jpg)
-
+[参考](https://blog.csdn.net/qq_29462849/article/details/83068421)
 **38. 反向传播算法（过程及公式推导）**
 
 **答：**
@@ -513,3 +513,7 @@ dropout也可以被用作一种添加噪声的方法，直接对input进行操�
 回到之前的例子里面尝试了一下，线性回归设相同值对结果影响不大。softmax设相同值，分类准确率一直是0.1
 
 可以这样理解，权重相同，隐藏层的神经元相当于单个神经元，此时神经网络相当于线性分类器。所以线性回归可以设相同值，而softmax是非线性分类器，不能设相同的值。
+
+**41.是否可以将线性回归或softmax回归中所有的权重参数都初始化为相同值？**
+
+**答：**
