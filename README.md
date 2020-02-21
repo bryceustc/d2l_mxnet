@@ -545,6 +545,23 @@ x.norm() 返回的是 “[1.]” or “[0.]”，
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/42_2.png)
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/42_3.png)
 
-**44.如果将NestMLP类中通过Sequential实例定义的self.net改为self.net = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu')]，会有什么问题？**
+**44.如何对每个层使用不同的初始化函数 （整理的方法）**
+
+**答：** 
+1.先构建网络，重新为每一层初始化
+2.构建网络时，为每一层初始化
+https://discuss.gluon.ai/t/topic/987/23
+
+
+**45.尝试在net.initialize()后、net(X)前访问模型参数，观察模型参数的形状。**
+
+**答：** 模型参数的形状有一个维度为 0。
+
+因为不知道输入数据的维度，无法为参数开辟空间。延迟初始化。
+
+**46.构造⼀个含共享参数层的多层感知机并训练。在训练过程中，观察每⼀层的模型参数和梯度**
 
 **答：**
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/46_1.jpg)
+
+前向传播会将参数乘两次，所以在反传是也应该分别求出梯度，分别更新参数，但是第二次会覆盖第一次的结果，所以我们只能看到一个值。
