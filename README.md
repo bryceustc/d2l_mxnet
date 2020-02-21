@@ -514,6 +514,34 @@ dropout也可以被用作一种添加噪声的方法，直接对input进行操�
 
 可以这样理解，权重相同，隐藏层的神经元相当于单个神经元，此时神经网络相当于线性分类器。所以线性回归可以设相同值，而softmax是非线性分类器，不能设相同的值。
 
-**41.是否可以将线性回归或softmax回归中所有的权重参数都初始化为相同值？**
+**41.如果不在 MLP 类的 __init__ 函数里调用父类的 __init__ 函数，会出现什么样的错误信息？(super函数的用法，\*args 和 \*\*kwargs 的区别)**
 
 **答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/41-2.jpg)
+
+会出现如下错误信息。
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/41.jpg)
+
+调用MLP(）时，如果不继承父类的__init__函数，则因为初始化没有继承父类初始化过程中的一些参数，而无法正常使用父类的函数，也就无法继续进行向前传播，进而无法训练网络。
+
+**42.如果去掉 FancyMLP 类里面的 asscalar 函数，会有什么问题？**
+
+**答：**
+
+x.norm().asscalar() 返回的是 “True” or “False”，
+
+x.norm() 返回的是 “[1.]” or “[0.]”，
+
+不会出现问题，不使用asscalar函数时判断条件结果为0或者1，使用asscalar函数判断结果为True或者False，然而while和if这两种方式都能正确决断，所以我觉得不会出现问题。
+
+**43.如果将NestMLP类中通过Sequential实例定义的self.net改为self.net = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu')]，会有什么问题？**
+
+**答：**
+
+根据题目将代码修改后，会报错，因为修改后会变成list类型，而不是Block， 这样就不会被自动注册到 Block 类的 self.\_children 属性, 导致 initialize 时在 self.\_children 找不到神经元, 无法初始化参数. 知道原因后，修改代码如下，到网络改成下面的结构：（第一张图片是修改后的代码，第二张图片是修改后代码的网网络结构，第三张是原来网络结构）显然可以看出来后面两层没有改变，只有前三层在使用不同类进行构造网络。
+
+![](https://discuss.gluon.ai/uploads/default/original/2X/1/128cab655a4694879c482d81f36f06cbad1da59e.png)
+![](https://discuss.gluon.ai/uploads/default/original/2X/4/40ca14627e9f80470e5295402445e9c8d708a828.png)
+![](https://discuss.gluon.ai/uploads/default/original/2X/3/3c20e1507d1405c32e5e69d785cd737a4b422fa0.png)
