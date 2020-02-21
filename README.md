@@ -539,9 +539,12 @@ x.norm() 返回的是 “[1.]” or “[0.]”，
 **43.如果将NestMLP类中通过Sequential实例定义的self.net改为self.net = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu')]，会有什么问题？**
 
 **答：**
-
 根据题目将代码修改后，会报错，因为修改后会变成list类型，而不是Block， 这样就不会被自动注册到 Block 类的 self.\_children 属性, 导致 initialize 时在 self.\_children 找不到神经元, 无法初始化参数. 知道原因后，修改代码如下，到网络改成下面的结构：（第一张图片是修改后的代码，第二张图片是修改后代码的网网络结构，第三张是原来网络结构）显然可以看出来后面两层没有改变，只有前三层在使用不同类进行构造网络。
 
-![](https://discuss.gluon.ai/uploads/default/original/2X/1/128cab655a4694879c482d81f36f06cbad1da59e.png)
-![](https://discuss.gluon.ai/uploads/default/original/2X/4/40ca14627e9f80470e5295402445e9c8d708a828.png)
-![](https://discuss.gluon.ai/uploads/default/original/2X/3/3c20e1507d1405c32e5e69d785cd737a4b422fa0.png)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/42_1.png)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/42_2.png)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/42_3.png)
+
+**44.如果将NestMLP类中通过Sequential实例定义的self.net改为self.net = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu')]，会有什么问题？**
+
+**答：**
