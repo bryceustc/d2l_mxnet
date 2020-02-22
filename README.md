@@ -565,3 +565,38 @@ https://discuss.gluon.ai/t/topic/987/23
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/46_1.jpg)
 
 前向传播会将参数乘两次，所以在反传是也应该分别求出梯度，分别更新参数，但是第二次会覆盖第一次的结果，所以我们只能看到一个值。
+
+**47.手写⼆维互相关运算，二维卷积层 Python代码**
+
+**答：**
+```python
+from mxnet import nd, autograd
+from mxnet.gluon import nn
+
+
+def corr2d(X, K):
+    h, w = K.shape
+    Y = nd.zeros(shape=(X.shape[0]-h+1, X.shape[1]-w+1))
+    for i in range(Y.shape[0]):
+        for j in range(Y.shape[1]):
+            Y[i,j] = (X[i:i+h, j:j+w] * K).sum()
+    return Y
+
+
+class Conv2D(nn.Block):
+    def __init__(self, kernel_size, **kwargs):
+        super().__init__(**kwargs)
+        self.weight = self.params.get('weight', shape= kernel_size)
+        self.bias = self.params.get('bias', shape = (1,))
+
+
+    def forward(self, x):
+        return corr2d(x, self.weight.data()) + self.bias.data()
+
+```
+
+卷积层的简单应⽤：检测图像中物体的边缘，即找到像素变化的位置，卷积层可通过重复使⽤卷积核有效地表征局部空间
+
+**47.卷积运算与互相关运算**
+
+**答：**
