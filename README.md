@@ -603,6 +603,7 @@ class Conv2D(nn.Block):
 
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/48.png)
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/48_2.jpg)
+[参考](https://blog.csdn.net/yjinyyzyq/article/details/91867123)
 
 **49.构造⼀个输⼊图像X，令它有⽔平⽅向的边缘。如何设计卷积核K来检测图像中⽔平边缘？如果是对⻆⽅向的边缘呢？**
 
@@ -629,6 +630,7 @@ X:
  [0. 0. 0. 0. 0. 0.]
  [1. 1. 1. 1. 1. 1.]
  [1. 1. 1. 1. 1. 1.]]
+<NDArray 8x6 @cpu(0)>
 
 Y：
 [[ 0.  0.  0.  0.  0.  0.]
@@ -638,4 +640,195 @@ Y：
  [ 0.  0.  0.  0.  0.  0.]
  [-1. -1. -1. -1. -1. -1.]
  [ 0.  0.  0.  0.  0.  0.]]
+<NDArray 7x6 @cpu(0)>
+```
+对角方向的边缘卷积核：
+```python
+X = nd.eye(6, 6)
+print(X)
+K = nd.array([[1, -1], [-1, 1]])
+Y = corr2d(X, K)
+print(Y)
+
+###
+X:
+[[1. 0. 0. 0. 0. 0.]
+ [0. 1. 0. 0. 0. 0.]
+ [0. 0. 1. 0. 0. 0.]
+ [0. 0. 0. 1. 0. 0.]
+ [0. 0. 0. 0. 1. 0.]
+ [0. 0. 0. 0. 0. 1.]]
+<NDArray 6x6 @cpu(0)>
+
+Y:
+[[ 2. -1.  0.  0.  0.]
+ [-1.  2. -1.  0.  0.]
+ [ 0. -1.  2. -1.  0.]
+ [ 0.  0. -1.  2. -1.]
+ [ 0.  0.  0. -1.  2.]]
+<NDArray 5x5 @cpu(0)>
+
+```
+
+**50.  试着对我们⾃⼰构造的Conv2D类进⾏⾃动求梯度，会有什么样的错误信息？在该类的forward函数⾥，将corr2d函数替换成nd.Convolution类使得⾃动求梯度变得可⾏。
+**
+
+**答：**
+虽然我们之前构造了Conv2D类，但由于corr2d使用了对单个元素赋值（[i, j]=）的操作会导致无法自动求导，下面我们使用Gluon提供的Conv2D类来实现这个例子。
+
+corr2d因为用了[i,j]=导致自动求导失败，具体错误如下
+```
+Inplace operations (+=, -=, x[:]=, etc) are not supported when recording with autograd.
+```
+
+将corr2d函数替换成nd.Convolution类使得⾃动求梯度变得可⾏
+
+```python
+# e.x.2 在 Conv2D 的 forward 函数⾥，将 corr2d 替换成 nd.Convolution 使得其可以求导。
+class Conv2D_ex2(nn.Block):
+  """
+    - **data**: *(batch_size, channel, height, width)*
+    - **weight**: *(num_filter, channel, kernel[0], kernel[1])*
+    - **bias**: *(num_filter,)*
+    - **out**: *(batch_size, num_filter, out_height, out_width)*.
+  """
+
+  def __init__(self, channels, kernel_size, **kwargs):
+    super().__init__(**kwargs)
+    self.weight = self.params.get(
+        'weight', shape=(channels, 1,) + kernel_size)
+    self.bias = self.params.get('bias', shape=(channels, ))
+    self.num_filter = channels
+    self.kernel_size = kernel_size
+
+  def forward(self, x):
+    return nd.Convolution(
+        data=x, weight=self.weight.data(), bias=self.bias.data(), num_filter=self.num_filter, kernel=self.kernel_size)
+
+```
+
+
+**51.  如何通过变化输⼊和核数组将互相关运算表⽰成⼀个矩阵乘法？**
+
+**答：**
+
+为了加速运算啊，传统的卷积核依次滑动的计算方法很难加速。转化为矩阵乘法之后，就可以调用各种线性代数运算库，CUDA里面的矩阵乘法实现。这些矩阵乘法都是极限优化过的，比暴力计算快很多倍。
+
+[二维离散卷积转换为矩阵相乘——卷积与反卷积](https://howardlau.me/machine-learning/convolution-to-matrix-multiplication.html)
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/51.jpg)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/51_2.jpg)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/51_3.jpg)
+
+**52.  卷积输出形状**
+
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/52.jpg)
+
+**53. 1 × 1卷积层被当作保持⾼和宽维度形状不变的全连接层使⽤。于是，我们可以通过调整⽹络层之间的通道数来控制模型复杂度 **
+
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/53.jpg)
+
+**54.假设输⼊形状为ci×h×w，且使⽤形状为co×ci×kh×kw、填充为(ph, pw)、步幅为(sh, sw)的卷积核。那么这个卷积层的前向计算分别需要多少次乘法和加法 **
+
+**答：**
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/54.png)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/54_1.png)
+
+**55.⽤矩阵乘法实现卷积计算 **
+
+**答：**
+
+[二维离散卷积转换为矩阵相乘——卷积与反卷积](https://howardlau.me/machine-learning/convolution-to-matrix-multiplication.html)
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/51.jpg)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/51_2.jpg)
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/51_3.jpg)
+
+**56. 池化层**
+
+**答：**
+-  最⼤池化和平均池化分别取池化窗口中输⼊元素的最⼤值和平均值作为输出。
+-  池化层的⼀个主要作⽤是缓解卷积层对位置的过度敏感性。
+-  可以指定池化层的填充和步幅。
+-  池化层的输出通道数跟输⼊通道数相同。
+
+**57. 分析池化层的计算复杂度。假设输⼊形状为c × h × w，我们使⽤形状为ph × pw的池化窗口，而且使⽤(ph, pw)填充和(sh, sw)步幅。这个池化层的前向计算复杂度有多⼤？**
+
+**答：**
+池化层的前向计算复杂度 c * ( (h - p_h + p_h + s_h) / s_h * (w - p_w + p_w + s_w) / s_w)
+
+**58. 想⼀想，最⼤池化层和平均池化层在作⽤上可能有哪些区别？**
+
+**答：**
+
+最大池化层，增强图片亮度；平均池化层，减少冲击失真，模糊，平滑。
+
+**59. 你觉得最小池化层这个想法有没有意义？**
+
+**答：**
+最大池化的意义是在于寻找该区域内最突出的特征；最小池化也就是寻找最不明显的特征，可用于图像去噪，模糊化等应用。
+
+filter卷积的过程是勾勒图片最小单元（特征）的过程。其输出值越大，表示该位置越贴近filter所代表的特征。而MaxPooling的过程实在降低特征在图像位置上的精确程度。表示的是在该片区域存在该特征。如果MinPooling的话，岂不是在该区域全部都是该特征？
+那么MinPooling也许在做一些特殊的图像分类时会有奇效？ 比方碧空无云的蓝天；无疾病、疤痕或色素痣的皮肤；无暇美玉；
+使用场景大概相对有限吧。
+
+**60. 问题：学习率太大会导致无法收敛。**
+
+**解决：学习率调整技巧：**
+
+优先使用Adam优化算法，此算法会自动调整学习率，以适用模型
+
+当loss值忽大忽小或者保持不变，学习率过大
+
+当loss值在减小但是幅度很小，学习率过小
+
+**61.   CUDA之nvidia-smi命令详解 **
+
+https://blog.csdn.net/Bruce_0712/article/details/63683787
+
+**62. 参考VGG论⽂⾥的表1来构造VGG其他常⽤模型，如VGG-16和VGG-19 **
+
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/61.jpg)
+
+```python
+from mxnet import gluon, init, nd
+from mxnet.gluon import nn
+
+
+def vgg_block(num_convs, num_channels):
+    blk = nn.Sequential()
+    for _ in range(num_convs):
+        blk.add(nn.Conv2D(num_channels, kernel_size=3, padding=1, activation='relu'))
+    blk.add(nn.MaxPool2D(pool_size=2, strides=2))
+    return blk
+
+
+conv_arch_vgg11 = ((1, 64), (1, 128), (2, 256), (2, 512), (2, 512))
+conv_arch_vgg16 = ((1, 64), (1, 128), (2, 256), (2, 512), (2, 512))
+conv_arch_vgg19 = ((2, 64), (2, 128), (3, 256), (3, 512), (3, 512))
+
+def vgg(conv_arch):
+    net = nn.Sequential()
+    # 卷积层部分
+    for (num_convs, num_channels) in conv_arch:
+        net.add(vgg_block(num_convs, num_channels))
+    # 全连接层部分
+    net.add(nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
+            nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
+            nn.Dense(10))
+    return net
+
+
+net = vgg(conv_arch_vgg19)
+net.initialize()
+X = nd.random.uniform(shape=(1, 1, 224, 224))
+for blk in net:
+    X = blk(X)
+    print(blk.name, 'output shape:\t', X.shape)
 ```
