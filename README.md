@@ -324,7 +324,8 @@ def cross_entropy(y_hat, y):
 **答：**
 会溢出，求exp(x)会溢出了：
 
-一种简单有效避免该问题的方法就是让exp(x)中的x值不要那么大或那么小，在softmax函数的分式上下分别乘以一个非零常数：
+一种简单有效避免该问题的方法就是让exp(x)中的x值不要那么大或那么小，在softmax函数的分式上下分别乘以一个非零常数
+
 **19. cross_entropy函数是按照“softmax回归”⼀节中的交叉熵损失函数的数学定义实现的。这样的实现⽅式可能有什么问题？（提⽰：思考⼀下对数函数的定义域。）**
 
 **答：** 对数函数的定义域是（0.+&），当无限接近于0 .可能导致结果过大为nan。主要是因为log()函数中出现了零值，因此在计算交叉熵时，在log()中加一极小值，如log(x+e-5)
@@ -832,3 +833,9 @@ for blk in net:
     X = blk(X)
     print(blk.name, 'output shape:\t', X.shape)
 ```
+
+**63. NiN网络**
+
+**答：**
+
+![63](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/63.jpg)
