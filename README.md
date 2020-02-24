@@ -671,8 +671,7 @@ Y:
 
 ```
 
-**50.  试着对我们⾃⼰构造的Conv2D类进⾏⾃动求梯度，会有什么样的错误信息？在该类的forward函数⾥，将corr2d函数替换成nd.Convolution类使得⾃动求梯度变得可⾏。
-**
+**50. 试着对我们⾃⼰构造的Conv2D类进⾏⾃动求梯度，会有什么样的错误信息？在该类的forward函数⾥，将corr2d函数替换成nd.Convolution类使得⾃动求梯度变得可⾏**
 
 **答：**
 虽然我们之前构造了Conv2D类，但由于corr2d使用了对单个元素赋值（[i, j]=）的操作会导致无法自动求导，下面我们使用Gluon提供的Conv2D类来实现这个例子。
@@ -727,19 +726,20 @@ class Conv2D_ex2(nn.Block):
 
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/52.jpg)
 
-**53. 1 × 1卷积层被当作保持⾼和宽维度形状不变的全连接层使⽤。于是，我们可以通过调整⽹络层之间的通道数来控制模型复杂度 **
+**53. 1 × 1卷积层被当作保持⾼和宽维度形状不变的全连接层使⽤。于是，我们可以通过调整⽹络层之间的通道数来控制模型复杂度**
 
 **答：**
 
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/53.jpg)
 
-**54.假设输⼊形状为ci×h×w，且使⽤形状为co×ci×kh×kw、填充为(ph, pw)、步幅为(sh, sw)的卷积核。那么这个卷积层的前向计算分别需要多少次乘法和加法 **
+**54.假设输⼊形状为ci×h×w，且使⽤形状为co×ci×kh×kw、填充为(ph, pw)、步幅为(sh, sw)的卷积核。那么这个卷积层的前向计算分别需要多少次乘法和加法**
 
 **答：**
+
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/54.png)
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/54_1.png)
 
-**55.⽤矩阵乘法实现卷积计算 **
+**55.⽤矩阵乘法实现卷积计算**
 
 **答：**
 
@@ -787,11 +787,11 @@ filter卷积的过程是勾勒图片最小单元（特征）的过程。其输�
 
 当loss值在减小但是幅度很小，学习率过小
 
-**61.   CUDA之nvidia-smi命令详解 **
+**61.CUDA之nvidia-smi命令详解**
 
 https://blog.csdn.net/Bruce_0712/article/details/63683787
 
-**62. 参考VGG论⽂⾥的表1来构造VGG其他常⽤模型，如VGG-16和VGG-19 **
+**62. 参考VGG论⽂⾥的表1来构造VGG其他常⽤模型，如VGG-16和VGG-19**
 
 **答：**
 
@@ -834,8 +834,34 @@ for blk in net:
     print(blk.name, 'output shape:\t', X.shape)
 ```
 
-**63. NiN网络**
+**63. NiN网络以及1×1卷积层的作用**
 
 **答：**
 
 ![63](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/63.jpg)
+
+
+如果设置kernel_size大小为1x1，则可以实现多个feature map的线性组合，实现跨通道的信息整合的功效，这也是mlpconv的由来，它将传统的conv中特征的“单层”线性升级为非线性的“多层”抽象表达，类比于在conv层中实现从单层感知机到多层感知机的变换。
+
+而恰好设置kernel_size大小为1x1，可以满足这个目的：实现多个feature map的线性组合这一功效。原因如下图：
+
+![63](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/63_2.png)
+
+
+![63](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/63_3.png)
+
+经过第一层时，只是单纯的生成各自的feature map：f1，f2。第二次后，f1和f2作为input，在kernel1x1的作用下，可以认为f1和f2线性组合成f3，注意这里是线性组合。f4的生成雷同。
+
+1.NIN两大特性：
+
+ -  mlpconv
+ -  平均池化层
+ 
+2.由此，引发出1x1卷积核的作用：
+
+ -  实现跨通道的交互和信息整合
+ -  进行卷积核通道数的降维和升维，减少网络参数
+ 
+**64. NiN网络以及1×1卷积层的作用**
+
+**答：** 
