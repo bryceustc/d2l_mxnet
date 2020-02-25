@@ -986,3 +986,95 @@ BN最大的优点为允许网络使用较大的学习速率进行训练，加快
 **69.为什么不加激活函数的情况下几层卷积和一层卷积没有区别呢?**
 
 **答：**卷积是线性变换，n个叠加还是线性。通过非线性激活可以打断这个。
+
+**70. 参考ResNet论⽂的表1来实现不同版本的ResNet**
+
+**答：**
+[ResNet论文笔记](https://blog.csdn.net/wspba/article/details/56019373)
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/70.png)
+conv1: 1 个 conv
+
+con2_x~con5_x: 每层4个 conv, 共16个 conv
+
+最后一个全连接算1层
+
+**71. 在ResNet的后续版本⾥，作者将残差块⾥的“卷积、批量归⼀化和激活”结构改成了“批量归⼀化、激活和卷积”，实现这个改进**
+
+**答：**
+```python
+class Residual(nn.Block):
+    def __init__(self,num_channels,use_1x1conv=False,strides=1,**kwargs):
+        super(Residual,self).__init__(**kwargs)
+        self.conv1=nn.Conv2D(num_channels,kernel_size=3,padding=1,strides=strides)
+        self.conv2=nn.Conv2D(num_channels,kernel_size=3,padding=1)
+        
+        if use_1x1conv:
+            self.conv3=nn.Conv2D(num_channels,kernel_size=1,strides=strides)
+        else:
+            self.conv3=None
+        
+        self.bn1=nn.BatchNorm()
+        self.bn2=nn.BatchNorm()
+    
+    def forward(self,X):
+        # “卷积、批量归一化和激活”结构改成了“批量归一化、激活和卷积”
+        Y= self.conv1(nd.relu(self.bn1(X)))
+        Y=self.conv2(nd.relu(self.bn2(Y)))
+        if self.conv3:
+            X=self.conv3(X)
+        return Y+X
+```
+然后我发现需要修改一下学习率，不然损失会消失
+
+**71. 在跨层连接上，不同于ResNet中将输入与输出相加，DenseNet在通道维上连结输入与输出。DenseNet的主要构建模块是稠密块和过渡层。**
+
+**72.DenseNet论⽂中提到的⼀个优点是模型参数⽐ResNet的更小，这是为什么？**
+
+**答：**
+https://zhuanlan.zhihu.com/p/37189203
+
+DenseNet的优势主要体现在以下几个方面：
+ -  由于密集连接方式，DenseNet提升了梯度的反向传播，使得网络更容易训练。由于每层可以直达最后的误差信号，实现了隐式的“deep supervision”；
+ -  参数更小且计算更高效，这有点违反直觉，由于DenseNet是通过concat特征来实现短路连接，实现了特征重用，并且采用较小的growth rate，每个层所独有的特征图是比较小的；
+ -  由于特征复用，最后的分类器使用了低级特征
+ 
+**73.n元语法**
+
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/73.jpg)
+
+
+**74.假设训练数据集中有10万个词，四元语法需要存储多少词频和多词相邻频率？**
+
+**答：**
+
+由于 P(w1,w2,w3,w4,…,w100000) = p(w1)p(w2|w1)p(w3|w1,w2)p(w4|w1,w2,w3)p(w5|w2,w3,w4)…p(w100000|w99997,w99998,w99999)
+
+即若想知道P(w1,w2,w3,w4) 的概率 ，需要之后后面p(w1)、p(w2|w1)、p(w3|w1,w2)、p(w4|w1,w2,w3)这四个概率。
+
+并且: 
+```
+p(w2|w1) = p(w1,w2) / p(w1)
+
+p(w3|w1,w2) = p(w1,w2,w3) / p(w1,w2)
+
+p(w4|w1,w2,w3) = p(w1,w2,w3,w4) / p(w1,w2,w3)
+
+......
+
+p(w100000|w99997,w99998,w99999)  = p(w99997,w99998,w99999,w100000)/p(w99997,w99998,w99999)
+```
+
+综上：
+
+10万个词一共需要存储 p(w1)…p(w100000) 共10万个词频；
+
+一共需要存储 p(w1,w2)…p(w99999,w100000) 共10万-1个 二词相邻频率
+
+** p(w1,w2,w3)…p(w99998,w99999,w100000) 共10万-2个 三词相邻频率**
+
+** p(w1,w2,w3,w4)…p(w99997,w99998,w99999,w100000) 共10万-3个 四词相邻频率**
+
+即相邻词频一共是 30万-6个
