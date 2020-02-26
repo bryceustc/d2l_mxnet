@@ -1100,3 +1100,9 @@ p(w100000|w99997,w99998,w99999)  = p(w99997,w99998,w99999,w100000)/p(w99997,w999
 
 **答：**
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/77.jpg)
+
+**78.通过时间进行反向传播**
+
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/78.jpg)
