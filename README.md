@@ -1106,3 +1106,66 @@ p(w100000|w99997,w99998,w99999)  = p(w99997,w99998,w99999,w100000)/p(w99997,w999
 **答：**
 
 ![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/78.jpg)
+
+当时间步数T较⼤或者时间步t较小时，⽬标函数有关隐藏状态的梯度较容易出现衰减和爆炸，这就需要梯度剪裁
+
+**79.将相邻采样改为不从计算图分离隐藏状态，运⾏时间有没有变化？**
+
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/79.jpg)
+相邻采样需要从计算图分离出隐藏的状态，因为相邻采样，一个序列的隐藏输出，要用来初始化相邻序列的的隐藏状态，因为要计算梯度，必须分离出来，不然会计算之前的梯度，计算了变大。
+
+**80.如何解决神经网络中梯度消失，爆炸问题？**
+
+**答：**
+
+1. 换个激活函数试试：使用Relu来作为神经网络的首选激活函数
+
+2. 从初始化权重的角度：Batch Normalization就是从权重初始化的角度来避免梯度消失， 具体细节较为复杂
+
+3. LSTM
+
+4.当梯度爆炸发生时：1).降低学习率, 2).梯度裁剪
+
+**81. ⻔控循环单元的设计稍作总结**
+
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/81_1.jpg)
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/81_2.jpg)
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/81_3.jpg)
+
+重置⻔有助于捕捉时间序列⾥短期的依赖关系；
+
+更新⻔有助于捕捉时间序列⾥⻓期的依赖关系。
+
+**82. LSTM总结**
+
+**答：**
+⻓短期记忆的隐藏层输出包括隐藏状态和记忆细胞。只有隐藏状态会传递到输出层。
+
+⻓短期记忆的输⼊⻔、遗忘⻔和输出⻔可以控制信息的流动。
+
+⻓短期记忆可以应对循环神经⽹络中的梯度衰减问题，并更好地捕捉时间序列中时间步距离较⼤的依赖关系。
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/82.jpg)
+
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/82_2.jpg)
+
+**83.LSTM与GRU的区别**
+**答：**
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/83.jpg)
+
+![](https://github.com/bryceustc/d2l_mxnet/blob/master/Images/83_2.jpg)
+
+**84.既然候选记忆细胞已通过使⽤tanh函数确保值域在-1到1之间，为什么隐藏状态还需要再次使⽤tanh函数来确保输出值域在-1到1之间？**
+
+**答：**
+我个人理解是记忆细胞值域 \boldsymbol{C}\_t 是在慢慢膨胀的，因此应用时需要先采用tanh激活函数压缩值域。
+\boldsymbol{C}\_t = \boldsymbol{F}\_t \odot \boldsymbol{C}\_{t-1} + \boldsymbol{I}\_t \odot \tilde{\boldsymbol{C}}\_t
+即便假设 \tilde{\boldsymbol{C}}\_t 初始化为0，那么经过 t 个时间步后 {C}\_t 的值域为 [-t, t] 我在代码中可以尝试输出C.max()会发现这个数值会越来越大。
