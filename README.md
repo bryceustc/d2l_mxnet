@@ -1169,3 +1169,6 @@ p(w100000|w99997,w99998,w99999)  = p(w99997,w99998,w99999,w100000)/p(w99997,w999
 我个人理解是记忆细胞值域 \boldsymbol{C}\_t 是在慢慢膨胀的，因此应用时需要先采用tanh激活函数压缩值域。
 \boldsymbol{C}\_t = \boldsymbol{F}\_t \odot \boldsymbol{C}\_{t-1} + \boldsymbol{I}\_t \odot \tilde{\boldsymbol{C}}\_t
 即便假设 \tilde{\boldsymbol{C}}\_t 初始化为0，那么经过 t 个时间步后 {C}\_t 的值域为 [-t, t] 我在代码中可以尝试输出C.max()会发现这个数值会越来越大。
+
+
+**85. 如何理解深度学习分布式训练中的large batch size与learning rate的关系？https://www.zhihu.com/question/64134994/answer/216895968**
