@@ -1172,3 +1172,8 @@ p(w100000|w99997,w99998,w99999)  = p(w99997,w99998,w99999,w100000)/p(w99997,w999
 
 
 **85. 如何理解深度学习分布式训练中的large batch size与learning rate的关系？https://www.zhihu.com/question/64134994/answer/216895968**
+
+**86.动量法使得相邻时间步的自变量更新在方向上更加一致。**
+
+动量SGD利用了之前的梯度来更新参数，若动量梯度方向与当前梯度方向相同，矢量相加则会加大梯度，若不同，则会进行修正。
+![](https://discuss.gluon.ai/uploads/default/original/2X/6/629c702011ef08fde755968ef5fd8c77c65aad55.png)
